@@ -1,0 +1,111 @@
+# creating inner join in python
+# Merge the taxi_owners and taxi_veh tables
+taxi_own_veh = taxi_owners.merge(taxi_veh,on="vid")
+
+# Print the column names of the taxi_own_veh
+print(taxi_own_veh.columns)
+
+
+# Merge the taxi_owners and taxi_veh tables setting a suffix
+taxi_own_veh = taxi_owners.merge(taxi_veh, on='vid', suffixes=('_own','_veh'))
+
+# Print the value_counts to find the most popular fuel_type
+print(taxi_own_veh['fuel_type'].value_counts())
+
+
+# Print the first few rows of the wards_altered table to view the change 
+print(wards_altered[['ward']].head())
+
+# Merge the wards_altered and census tables on the ward column
+wards_altered_census =wards_altered.merge(census,on="ward")
+
+# Print the shape of wards_altered_census
+print('wards_altered_census table shape:', wards_altered_census.shape)
+
+
+# merging three tables
+# Merge licenses and zip_demo, on zip; and merge the wards on ward
+licenses_zip_ward = licenses.merge(zip_demo,on="zip") \
+            			.merge(wards,on="ward")
+# Print the results by alderman and show median income
+print(licenses_zip_ward.groupby("alderman").agg({'income':'median'}))
+
+
+# Merge land_use and census and merge result with licenses including suffixes
+land_cen_lic = land_use.merge(census, on='ward') \
+                    .merge(licenses, on='ward', suffixes=('_cen','_lic'))
+
+# Group by ward, pop_2010, and vacant, then count the # of accounts
+pop_vac_lic = land_cen_lic.groupby(['ward','pop_2010','vacant'], 
+                                   as_index=False).agg({'account':'count'})
+
+# Sort pop_vac_lic and print the results
+sorted_pop_vac_lic = pop_vac_lic.sort_values(['ward','pop_2010','vacant'],
+                                             ascending=[False,True,True])
+
+# Print the top few rows of sorted_pop_vac_lic
+print(sorted_pop_vac_lic.head())
+
+# Merge the movies table with the financials table with a left join
+movies_financials = movies.merge(financials, on='id', how='left')
+
+# Count the number of rows in the budget column that are missing
+number_of_missing_fin = movies_financials['budget'].isnull().sum()
+# Print the number of movies missing financials
+print(number_of_missing_fin)
+
+
+# Merge the toy_story and taglines tables with a left join
+toystory_tag = toy_story.merge(taglines,on="id", how="left")
+
+# Print the rows and shape of toystory_tag
+print(toystory_tag)
+print(toystory_tag.shape)
+
+
+ Use right join to merge the movie_to_genres and pop_movies tables
+genres_movies = movie_to_genres.merge(pop_movies, how='right', 
+                                      left_on='movie_id', 
+                                      right_on='id')
+
+# Count the number of genres
+genre_count = genres_movies.groupby('genre').agg({'id':'count'})
+
+# Plot a bar chart of the genre_count
+genre_count.plot(kind='bar')
+plt.show()
+
+
+# Merge to the movies table the ratings table on the index
+movies_ratings = movies.merge(ratings, on='id', how='left')
+# Print the first few rows of movies_ratings
+print(movies_ratings.head())# Merge to the movies table the ratings table on the index
+movies_ratings = movies.merge(ratings, on='id', how='left')
+# Print the first few rows of movies_ratings
+print(movies_ratings.head())
+
+
+
+
+#left joins in python
+# Merge movies and financials with a left join
+movies_financials = movies.merge( financials,on="id",how="left")
+
+
+#merging in python
+# Merge sequels and financials on index id
+sequels_fin = sequels.merge(financials, on='id', how='left')
+
+# Self merge with suffixes as inner join with left on sequel and right on id
+orig_seq = sequels_fin.merge(sequels_fin, how='inner', left_on='sequel', 
+                             right_on='id', right_index=True,
+                             suffixes=('_org','_seq'))
+
+# Add calculation to subtract revenue_org from revenue_seq 
+orig_seq['diff'] = orig_seq['revenue_seq'] - orig_seq['revenue_org']
+
+# Select the title_org, title_seq, and diff 
+titles_diff = orig_seq[['title_org','title_seq','diff']]
+
+# Print the first rows of the sorted titles_diff
+print(titles_diff.sort_values("diff").head())
